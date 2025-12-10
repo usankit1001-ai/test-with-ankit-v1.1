@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context';
 import { getAppData, saveAppData } from '../firebaseService';
+import { uploadToCloudinary, isCloudinaryConfigured } from '../cloudinaryService';
 import { AppData, Experience, Education, Certification, Testimonial, Service } from '../types';
 import { Save, XCircle, Trash2, PlusCircle } from 'lucide-react';
 
@@ -55,6 +56,47 @@ export const AdminDashboard: React.FC = () => {
     }));
     setIsDirty(true);
   };
+
+    // Upload handlers
+    const handleProfileAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (!isCloudinaryConfigured()) {
+            alert('Cloudinary not configured. Add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET to your env.');
+            return;
+        }
+        try {
+            const url = await uploadToCloudinary(file);
+            setFormData(prev => ({ ...prev, profile: { ...prev.profile, avatar: url } }));
+            setIsDirty(true);
+            alert('Avatar uploaded successfully');
+        } catch (err: any) {
+            console.error('Avatar upload failed', err);
+            alert('Avatar upload failed: ' + (err?.message || err));
+        }
+    };
+
+    const handleProjectImageChange = (index: number) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (!isCloudinaryConfigured()) {
+            alert('Cloudinary not configured. Add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET to your env.');
+            return;
+        }
+        try {
+            const url = await uploadToCloudinary(file);
+            setFormData(prev => {
+                const newProjects = [...prev.projects];
+                newProjects[index] = { ...newProjects[index], image: url } as any;
+                return { ...prev, projects: newProjects };
+            });
+            setIsDirty(true);
+            alert('Project image uploaded successfully');
+        } catch (err: any) {
+            console.error('Project image upload failed', err);
+            alert('Project image upload failed: ' + (err?.message || err));
+        }
+    };
 
   // Helper for input fields
   const InputGroup = ({ label, value, onChange, type = "text", area = false, placeholder = "" }: any) => (
@@ -128,7 +170,21 @@ export const AdminDashboard: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-white mb-4">Edit Profile</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center border border-gray-700">
+                                    {formData.profile.avatar ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={formData.profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-sm text-gray-400">No avatar</span>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Upload Avatar</label>
+                                    <input type="file" accept="image/*" onChange={handleProfileAvatarChange} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputGroup
                   label="Name"
                   value={formData.profile.name}
@@ -416,6 +472,22 @@ export const AdminDashboard: React.FC = () => {
                                 }}
                                 placeholder="https://..."
                             />
+                            <div className="mt-3">
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Project Image</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-36 h-24 bg-gray-800 border border-gray-700 rounded overflow-hidden flex items-center justify-center">
+                                        {project.image ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img src={project.image} alt="project" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-xs text-gray-400">No image</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <input type="file" accept="image/*" onChange={handleProjectImageChange(idx)} />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     ))}
                     <button

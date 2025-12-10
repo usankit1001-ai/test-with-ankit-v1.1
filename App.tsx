@@ -717,24 +717,33 @@ const MainLayout = () => {
       <Section id="contact" title="Get In Touch" subtitle="Ready to optimize your product's quality?" className="bg-white/50 dark:bg-black/40 backdrop-blur-sm">
         <FadeInWhenVisible>
             <div className="max-w-xl mx-auto bg-white/80 dark:bg-dark-card/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-white/5">
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-2 gap-4">
+            <form
+              className="space-y-4"
+              action="https://api.web3forms.com/submit"
+              method="POST"
+            >
+              {/* Web3Forms access key */}
+              <input type="hidden" name="access_key" value="c2bf54c0-f2aa-4f8d-834e-784cb6f93111" />
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
-                    <input type="text" className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="John Doe" />
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
+                  <input name="name" type="text" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="John Doe" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
-                    <input type="email" className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="john@example.com" />
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
+                  <input name="email" type="email" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="john@example.com" />
                 </div>
-                </div>
-                <div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Message</label>
-                <textarea rows={4} className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="How can I help you?" />
-                </div>
-                <button className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                <textarea name="message" rows={4} required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="How can I help you?" />
+              </div>
+
+              <button type="submit" className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
                 Send Message
-                </button>
+              </button>
             </form>
             </div>
         </FadeInWhenVisible>

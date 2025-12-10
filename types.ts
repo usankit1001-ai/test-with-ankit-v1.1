@@ -25,6 +25,7 @@ export interface Project {
   tags: string[];
   link?: string;
   type: 'Web' | 'Mobile' | 'API';
+  image?: string;
 }
 
 export interface Experience {
@@ -83,6 +84,7 @@ export interface Profile {
   resumeLink: string;
   location: string;
   phone: string;
+  avatar?: string;
 }
 
 export interface AppData {
