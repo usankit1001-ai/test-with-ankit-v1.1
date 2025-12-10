@@ -714,38 +714,72 @@ const MainLayout = () => {
       </Section>
 
       {/* Contact Section */}
-      <Section id="contact" title="Get In Touch" subtitle="Ready to optimize your product's quality?" className="bg-white/50 dark:bg-black/40 backdrop-blur-sm">
+      <Section id="contact" title="Get In Touch" subtitle="Let's connect and build something extraordinary." className="bg-white/50 dark:bg-black/40 backdrop-blur-sm">
         <FadeInWhenVisible>
-            <div className="max-w-xl mx-auto bg-white/80 dark:bg-dark-card/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-white/5">
-            <form
-              className="space-y-4"
-              action="https://api.web3forms.com/submit"
-              method="POST"
-            >
-              {/* Web3Forms access key */}
-              <input type="hidden" name="access_key" value="c2bf54c0-f2aa-4f8d-834e-784cb6f93111" />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
-                  <input name="name" type="text" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="John Doe" />
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            {/* Left: Contact Information (dynamic) */}
+            <div className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-md p-6 rounded-3xl shadow-lg border border-gray-100 dark:border-white/5">
+              <h3 className="text-xl font-bold mb-4">Contact Information</h3>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-dark-card border border-dark-border flex items-center justify-center">
+                    <Mail className="text-teal-400" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold uppercase text-gray-500 mb-1">Email Me</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">{data.profile.email}</div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
-                  <input name="email" type="email" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="john@example.com" />
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-dark-card border border-dark-border flex items-center justify-center">
+                    <Smartphone className="text-teal-400" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold uppercase text-gray-500 mb-1">Call Me</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">{data.profile.phone}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-dark-card border border-dark-border flex items-center justify-center">
+                    <MapPin className="text-teal-400" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold uppercase text-gray-500 mb-1">Location</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">{data.profile.location}</div>
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Message</label>
-                <textarea name="message" rows={4} required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="How can I help you?" />
-              </div>
-
-              <button type="submit" className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                Send Message
-              </button>
-            </form>
             </div>
+
+            {/* Right: existing contact form (keeps original behavior) */}
+            <div className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-white/5">
+              <form className="space-y-4" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="c2bf54c0-f2aa-4f8d-834e-784cb6f93111" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
+                    <input name="name" type="text" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="John Doe" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
+                    <input name="email" type="email" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="john@example.com" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Message</label>
+                  <textarea name="message" rows={4} required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="How can I help you?" />
+                </div>
+
+                <button type="submit" className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
         </FadeInWhenVisible>
       </Section>
 
