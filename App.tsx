@@ -129,6 +129,135 @@ const QAVisual = () => {
     );
 };
 
+// Inline contact form component — submits via fetch to Web3Forms and stays on same page.
+const ContactFormInline = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [feedback, setFeedback] = useState('');
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !message) return;
+
+    setStatus('sending');
+    setFeedback('');
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: 'c2bf54c0-f2aa-4f8d-834e-784cb6f93111',
+          name,
+          email,
+          message,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus('success');
+        setFeedback("Form submitted successfully! We'll review your submission and get back to you soon.");
+        // reset inputs
+        setName('');
+        setEmail('');
+        setMessage('');
+
+        // auto-hide after 5 seconds
+        timerRef.current = window.setTimeout(() => {
+          setStatus('idle');
+          setFeedback('');
+          timerRef.current = null;
+        }, 5000);
+      } else {
+        setStatus('error');
+        setFeedback((data && data.message) || 'Submission failed. Please try again.');
+      }
+    } catch (err) {
+      setStatus('error');
+      setFeedback('Submission failed. Please check your connection and try again.');
+    }
+  };
+
+  return (
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      {/* hidden access key included in the POST body above */}
+
+      {status === 'success' && (
+        <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800">
+          <div className="font-semibold">Form submitted successfully!</div>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-800">
+          <div className="font-semibold">{feedback || 'Submission failed'}</div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
+          <input
+            name="name"
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors"
+            placeholder="John Doe"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
+          <input
+            name="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors"
+            placeholder="john@example.com"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Message</label>
+        <textarea
+          name="message"
+          rows={4}
+          required
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors"
+          placeholder="How can I help you?"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-60"
+      >
+        {status === 'sending' ? 'Sending...' : 'Send Message'}
+      </button>
+    </form>
+  );
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data, isDark, toggleTheme } = useData();
@@ -753,31 +882,9 @@ const MainLayout = () => {
               </div>
             </div>
 
-            {/* Right: existing contact form (keeps original behavior) */}
+            {/* Right: contact form — submit inline via AJAX, reset fields, auto-hide success */}
             <div className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-md p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-white/5">
-              <form className="space-y-4" action="https://api.web3forms.com/submit" method="POST">
-                <input type="hidden" name="access_key" value="c2bf54c0-f2aa-4f8d-834e-784cb6f93111" />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Name</label>
-                    <input name="name" type="text" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="John Doe" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</label>
-                    <input name="email" type="email" required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="john@example.com" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Message</label>
-                  <textarea name="message" rows={4} required className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-teal-500 transition-colors" placeholder="How can I help you?" />
-                </div>
-
-                <button type="submit" className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl">
-                  Send Message
-                </button>
-              </form>
+              <ContactFormInline />
             </div>
           </div>
         </FadeInWhenVisible>
