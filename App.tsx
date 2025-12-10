@@ -136,13 +136,14 @@ const ContactFormInline = () => {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [feedback, setFeedback] = useState('');
-  const timerRef = useRef<number | null>(null);
+  const [visible, setVisible] = useState(true);
+  const fadeRef = useRef<number | null>(null);
+  const clearRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      if (fadeRef.current) clearTimeout(fadeRef.current);
+      if (clearRef.current) clearTimeout(clearRef.current);
     };
   }, []);
 
@@ -169,17 +170,23 @@ const ContactFormInline = () => {
 
       if (res.ok && data.success) {
         setStatus('success');
-        setFeedback("Form submitted successfully! We'll review your submission and get back to you soon.");
-        // reset inputs
+        setFeedback('');
         setName('');
         setEmail('');
         setMessage('');
 
-        // auto-hide after 5 seconds
-        timerRef.current = window.setTimeout(() => {
+        // show message then fade shortly before clearing
+        setVisible(true);
+        if (fadeRef.current) clearTimeout(fadeRef.current);
+        if (clearRef.current) clearTimeout(clearRef.current);
+        fadeRef.current = window.setTimeout(() => {
+          setVisible(false);
+        }, 4500);
+        clearRef.current = window.setTimeout(() => {
           setStatus('idle');
           setFeedback('');
-          timerRef.current = null;
+          fadeRef.current = null;
+          clearRef.current = null;
         }, 5000);
       } else {
         setStatus('error');
@@ -196,9 +203,14 @@ const ContactFormInline = () => {
       {/* hidden access key included in the POST body above */}
 
       {status === 'success' && (
-        <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800">
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : -6 }}
+          transition={{ duration: 0.45 }}
+          className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800"
+        >
           <div className="font-semibold">Form submitted successfully!</div>
-        </div>
+        </motion.div>
       )}
 
       {status === 'error' && (
