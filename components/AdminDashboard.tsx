@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context';
+import { getAppData, saveAppData } from '../firebaseService';
 import { AppData, Experience, Education, Certification, Testimonial, Service } from '../types';
 import { Save, XCircle, Trash2, PlusCircle } from 'lucide-react';
 
@@ -10,21 +11,42 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'projects' | 'skills' | 'services' | 'experience' | 'education' | 'certifications' | 'testimonials' | 'blogs'>('profile');
   const [isDirty, setIsDirty] = useState(false);
 
-  // Sync local state with context on mount only
-  useEffect(() => {
-    setFormData(JSON.parse(JSON.stringify(data)));
-  }, []);
+    // Load data from Firestore on mount
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const remote = await getAppData();
+                if (mounted) setFormData(remote);
+            } catch (e) {
+                console.error('Failed to load data from Firestore', e);
+                if (mounted) setFormData(JSON.parse(JSON.stringify(data)));
+            }
+        })();
+        return () => { mounted = false; };
+    }, [data]);
 
-  const handleSave = () => {
-    updateData(formData);
-    setIsDirty(false);
-    alert('Changes saved successfully!');
-  };
+    const handleSave = async () => {
+        try {
+            await saveAppData(formData);
+            updateData(formData); // keep context in sync
+            setIsDirty(false);
+            alert('Changes saved successfully!');
+        } catch (e) {
+            console.error('Failed to save to Firestore', e);
+            alert('Data saved to local storage. Update Firestore Security Rules to enable Firestore sync.');
+        }
+    };
 
-  const handleCancel = () => {
-    setFormData(JSON.parse(JSON.stringify(data)));
-    setIsDirty(false);
-  };
+    const handleCancel = async () => {
+        try {
+            const remote = await getAppData();
+            setFormData(remote);
+        } catch (e) {
+            setFormData(JSON.parse(JSON.stringify(data)));
+        }
+        setIsDirty(false);
+    };
 
   const updateField = (section: keyof AppData, update: any) => {
     setFormData(prev => ({
