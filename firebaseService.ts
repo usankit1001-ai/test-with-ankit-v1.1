@@ -9,6 +9,7 @@ import {
   collection,
   addDoc,
   DocumentData,
+  onSnapshot,
 } from 'firebase/firestore';
 import type { AppData } from './types';
 import { INITIAL_DATA } from './types';
@@ -130,6 +131,28 @@ export async function updateAppData(partial: Partial<AppData>): Promise<void> {
     } catch (e) {
       console.error('Failed to update localStorage', e);
     }
+  }
+}
+
+// Subscribe to real-time updates for the single app doc
+export function subscribeToAppData(onChange: (data: AppData) => void) {
+  try {
+    const ref = doc(db, APP_DOC_PATH.collection, APP_DOC_PATH.docId);
+    const unsub = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        const d = snap.data() as AppData;
+        saveToLocalStorage(d);
+        onChange(d);
+      } else {
+        onChange(INITIAL_DATA);
+      }
+    }, (err) => {
+      console.error('❌ Firestore onSnapshot error:', err);
+    });
+    return unsub;
+  } catch (e) {
+    console.error('Failed to subscribe to app data', e);
+    return () => {};
   }
 }
 

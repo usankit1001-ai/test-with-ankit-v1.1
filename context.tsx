@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppData, INITIAL_DATA } from './types';
+import { subscribeToAppData } from './firebaseService';
 
 interface DataContextType {
   data: AppData;
@@ -54,6 +55,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setIsLoaded(true);
   }, []);
+
+  // Subscribe to Firestore updates and keep context in sync
+  useEffect(() => {
+    if (!isLoaded) return;
+    const unsub = subscribeToAppData((remoteData) => {
+      try {
+        // Merge remote with INITIAL_DATA to ensure all keys exist
+        setData({ ...INITIAL_DATA, ...remoteData });
+      } catch (e) {
+        console.error('Failed to apply remote data snapshot', e);
+      }
+    });
+    return () => unsub && unsub();
+  }, [isLoaded]);
 
   useEffect(() => {
     if (isLoaded) {
