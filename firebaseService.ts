@@ -85,14 +85,27 @@ export async function saveAppData(data: AppData): Promise<void> {
     console.log('✓ Data saved to Firestore');
     savedToFirestore = true;
   } catch (e: any) {
-    console.error('❌ Firestore saveAppData error:', e?.message);
+    const errorMsg = e?.message || String(e);
+    console.error('❌ Firestore saveAppData error:', errorMsg);
+    
+    if (errorMsg.includes('Missing or insufficient permissions')) {
+      console.error('🔴 FIRESTORE SECURITY RULES ISSUE:');
+      console.error('Your Firestore Security Rules are blocking writes.');
+      console.error('Go to: https://console.firebase.google.com/project/portfolio-89521/firestore/rules');
+      console.error('Replace rules with the "allow read, write: if true;" version (see console logs)');
+    }
   }
   
   // Always backup to localStorage as fallback
   saveToLocalStorage(data);
   
   if (!savedToFirestore) {
-    console.warn('⚠️ Data saved to localStorage only (Firestore unavailable). Update Firestore Security Rules to enable Firestore sync.');
+    console.warn('⚠️ Data saved to localStorage only (Firestore unavailable).');
+    console.log('%c📋 QUICK FIX:', 'color: yellow; font-weight: bold;');
+    console.log('1. Go to https://console.firebase.google.com/project/portfolio-89521/firestore/rules');
+    console.log('2. Replace the rules with:\n\nrules_version = "2";\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /app/{document=**} {\n      allow read, write: if true;\n    }\n  }\n}\n');
+    console.log('3. Click "Publish"');
+    console.log('4. Refresh this page (Ctrl+Shift+R)');
   }
 }
 
